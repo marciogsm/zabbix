@@ -65,14 +65,6 @@ get_item_value() {
         \"id\": 1}" | cut -d'"' -f22
 }
 
-    wget -O- -o /dev/null $API --header 'Content-Type: application/json-rpc' --post-data "{
-        \"jsonrpc\": \"2.0\",
-        \"method\": \"user.login\",
-        \"params\": {
-                \"user\": \"$ZABBIX_USER\",
-                \"password\": \"$ZABBIX_PASS\"},
-        \"id\": 0}" | cut -d'"' -f8
-
 
 ITEMVALUE=$(get_item_value);
 

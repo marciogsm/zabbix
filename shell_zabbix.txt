@@ -1,0 +1,19 @@
+
+for i in `cat linux_monitoring.txt`; do echo "== $i == "  >> log.txt && ssh -t -y -o ConnectTimeout=1 monitoring@$i whoami |& tee >> log_monitoring.txt ; done
+
+for i in `cat linuxservers.txt`; do echo $i >> log.txt && ssh -t -y -o ConnectTimeout=1 -o BatchMode=yes $i whoami |& tee >> log.txt ; done
+
+for i in `cat linuxservers.txt`; do echo "== $i == "  >> log.txt && ssh -t -y -o ConnectTimeout=1 -o BatchMode=yes $i whoami |& tee >> log.txt ; done
+
+for i in `cat notok.txt`; do ssh -t -y -o ConnectTimeout=1 -o BatchMode=yes $i whoami ; done
+
+awk -v ORS="',\n" '1' file
+
+for i in `cat linux_inventory.txt`; do ssh -t $i 'ls /' |& tee >> linux_GPG_TEST.txt; done
+for i in `cat linux_inventory.txt`; do ssh -oBatchMode=yes -t $i 'ls /' |& tee >> linux_GPG_TEST.txt; done
+for i in `cat linux_newGPG.txt`; do ssh -oBatchMode=yes -t $i 'ls /'; done
+for i in `cat linux_newGPG.txt`; do ssh -oBatchMode=yes -y -t $i 'ls /'; done
+for i in `cat linux_newGPG.txt`; do ssh -oBatchMode=yes -y -t $i 'ls /'; done
+tr ',' '\n' < linuxips.txt > linuxips_02.txt
+
+while read line; do IP=`echo $line |cut -d " " -f2` && echo $IP; done < marcio.txt

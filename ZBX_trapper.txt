@@ -1,0 +1,1 @@
+VALUE="$(date --rfc-3339=ns)"; zabbix_sender --zabbix-server=10.44.32.19 --host="Zabbix server" --key="test.timestamp" --value="${VALUE}"

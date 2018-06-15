@@ -52,3 +52,31 @@ mysql --user=user --password=password db_name < /path/of/database-schema.sql
 
 ####And finally I joined the zabbix table with the command
 mysql --user=user --password=password db_name < /path/of/database.sql
+
+
+sed -i 's/INSERT INTO `\(.*\)` VALUES/REPLACE INTO `\1` VALUES/g' /path/of/database.sql
+
+
+You'll get that error because there are already data in that table.
+
+You can either replace the statements like
+Code:
+LOCK TABLES `x` WRITE;
+with
+Code:
+TRUNCATE TABLE `x`; 'LOCK TABLES `x` WRITE;
+, which you can do with the following command:
+Code:
+sed -i 's/LOCK TABLES `\(.*\)`/TRUNCATAE TABLE `\1`; LOCK TABLES `\1`/g' /path/of/database.sql
+
+or
+
+you can replace the
+Code:
+INSERT INTO `x` VALUES
+with
+Code:
+REPLACE INTO `x` VALUES
+, which you can do with the following command:
+Code:
+sed -i 's/INSERT INTO `\(.*\)` VALUES/REPLACE INTO `\1` VALUES/g' /path/of/database.sql

@@ -1,0 +1,25 @@
+az vm list --query "[?provisioningState=='Succeeded'].{ name: name, os: osProfile.linuxConfiguration.ssh.publicKeys }" --output text
+
+## GET ALL VM ##
+az vm list --query '[].{RG: resourceGroup, NAME: name}'
+az vm list --query '[].osProfile.computerName'
+
+
+az vm list --query "[?osProfile.computerName=='USAZU1VALEDB001'].{RG:resourceGroup}" --output tsv
+
+
+## GET VM STATUS ##
+az vm get-instance-view --resource-group USAZU1VALERS001 --name USAZU1VALEAS042 --query instanceView.statuses[1] --output tsv
+
+az vm get-instance-view --resource-group USAZU1VALERS001 --name USAZU1VALEDB001 --query instanceView.statuses[1].displayStatus --output tsv
+
+az vm get-instance-view --resource-group USAZU1VALERS001 --name USAZU1VALEAS042 --query provisioningState
+
+
+
+## GET ALL VM VALUES ##
+az vm get-instance-view --resource-group USAZU1VALERS084 --name USAZU1VALEAS093
+
+
+###
+az vm list --query "[?provisioningState!='Succeeded'].{ name: name}" --output tsv

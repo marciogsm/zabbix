@@ -26,7 +26,7 @@ while read -r addr; do
     # ICMP check
     ICMP=$(ping -W 0.5 -c2 "$addr" | grep -Eo '[0-9]{1,3}% \w+ \w+')
     if [[ $ICMP =~ "100" ]]; then
-        TRACE=$(tracepath -m5 "$addr" | grep -B1 'no reply' | head -n1 | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}')
+        TRACE=$(tracepath -m5 "$addr" | grep -B1 'no reply' | grep -B1 -m1 'no reply' | awk 'NR==1 {print $2}')
         TRACE=${TRACE:-"unknown"}
         TRACE="Tracert stopped at hop $TRACE"
         ISSUE="Yes"

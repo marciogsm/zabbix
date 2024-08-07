@@ -16,7 +16,7 @@ fi
 TIMEOUT=${2:-60}
 
 # Print header
-echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP_OUT;TRACE;TCPDUMP_10051;PORT_STATUS_10050;ZBXPROXY_LOG;ISSUE"
+echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue"
 
 # Loop through each address in the input file
 while read -r addr; do

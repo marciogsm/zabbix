@@ -15,6 +15,9 @@ fi
 # Set timeout value, default is 60 seconds
 TIMEOUT=${2:-60}
 
+# Set Zabbix Proxy logs path
+ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
+
 # Print header
 echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue"
 
@@ -57,8 +60,9 @@ while read -r addr; do
     fi
 
     # Zabbix proxy log check
+    
     IP=$(echo "$addr" | sed 's/\./\\./g')
-    LOG=$(grep -m1 -w "$IP" /var/log/zabbix/zabbix_proxy.log)
+    LOG=$( grep date '+%Y%m%d' $ZBXLOG | grep -m1 -w "$IP" $ZBXLOG)
     if [[ $? -eq 0 ]]; then
         LOG_STATUS="Found ERROR Zabbix Proxy LOG - $LOG"
     else

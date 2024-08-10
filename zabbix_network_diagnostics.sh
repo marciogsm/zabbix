@@ -19,13 +19,16 @@ TIMEOUT=${2:-60}
 ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 
 # Print header
-echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue"
+echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama"
 
 # Loop through each address in the input file
 while read -r addr; do
     # Initialize ISSUE flag
     ISSUE="No"
-    
+
+    # Isolate network
+    GAMA=$( echo $addr | sed -e 's/\.[0-9]\+$/\.0\/24/g')
+
     # ICMP check
     ICMP=$(ping -W 0.5 -c2 "$addr" | grep -Eo '[0-9]{1,3}% \w+ \w+')
     if [[ $ICMP =~ "100" ]]; then
@@ -70,6 +73,6 @@ while read -r addr; do
     fi
 
     # Output results for the current address
-    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE"
+    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA"
 
 done < "$1"

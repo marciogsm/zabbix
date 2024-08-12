@@ -7,10 +7,10 @@
 #        [timeout] - (Optional) Timeout value for tcpdump. Default is 60 seconds.
 
 # Check if the input file is provided
-if [[ -z $1 ]]; then
-    echo "Usage: $0 <file> [timeout]"
-    exit 1
-fi
+#if [[ -z $1 ]]; then
+#    echo "Usage: $0 <file> [timeout]"
+#    exit 1
+#fi
 
 # Set timeout value, default is 60 seconds
 TIMEOUT=${2:-60}
@@ -18,11 +18,19 @@ TIMEOUT=${2:-60}
 # Set Zabbix Proxy logs path
 ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 
+# Set hostname
+HOST=$(hostname)
+
+# Filter hosts by Zabbix Proxy and prepare file
+while IFS=";" read -r concat cust hub host Ok addr a b c d e f g h i j k; do
+        echo "$cust;$addr;$d"
+done <<<  $(grep -i $(hostname) /home/mgmoreno/Controle) >  /home/mgmoreno/$(hostname)
+
 # Print header
-echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama"
+echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;Cust;Host"
 
 # Loop through each address in the input file
-while read -r addr; do
+while IFS=";" read -r cust addr proxy; do
     # Initialize ISSUE flag
     ISSUE="No"
 
@@ -63,7 +71,7 @@ while read -r addr; do
     fi
 
     # Zabbix proxy log check
-    
+
     IP=$(echo "$addr" | sed 's/\./\\./g')
     LOG=$( grep date '+%Y%m%d' $ZBXLOG | grep -m1 -w "$IP" $ZBXLOG)
     if [[ $? -eq 0 ]]; then
@@ -73,6 +81,6 @@ while read -r addr; do
     fi
 
     # Output results for the current address
-    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA"
+    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$HOST"
 
-done < "$1"
+done < "/home/mgmoreno/$(hostname)"

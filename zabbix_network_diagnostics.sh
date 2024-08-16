@@ -22,12 +22,12 @@ ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 HOST=$(hostname)
 
 # Filter hosts by Zabbix Proxy and prepare file
-while IFS=";" read -r concat cust hub host Ok addr a b c d e f g h i j k; do
+while IFS=";" read -r concat cust hub hostname status addr OS mrdmon proxyaddr proxyname iniciado statusinstalacao ten comparaconsole comparaname data 1 2 OBS 4 o gestao; do
         echo "$cust;$addr;$d"
 done <<<  $(grep -i $(hostname) /home/mgmoreno/Controle) >  /home/mgmoreno/$(hostname)
 
 # Print header
-echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;Cust;Host"
+echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;Cust;Hostname;Status;OS;OBS"
 
 # Loop through each address in the input file
 while IFS=";" read -r cust addr proxy; do
@@ -81,6 +81,6 @@ while IFS=";" read -r cust addr proxy; do
     fi
 
     # Output results for the current address
-    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$HOST"
+    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$hostname;$statusinstalacao;$OS;$OBS"
 
 done < "/home/mgmoreno/$(hostname)"

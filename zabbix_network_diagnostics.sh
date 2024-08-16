@@ -73,7 +73,7 @@ while IFS=";" read -r cust addr proxy host; do
     # Zabbix proxy log check
 
     IP=$(echo "$addr" | sed 's/\./\\./g')
-    LOG=$( grep $(date '+%Y%m%d') $ZBXLOG | grep -m1 -w "$IP" $ZBXLOG)
+    LOG=$( grep $(date '+%Y%m%d') $ZBXLOG | grep -m1 -w "$IP")
     if [[ $? -eq 0 ]]; then
         LOG_STATUS="Found ERROR Zabbix Proxy LOG - $LOG"
     else

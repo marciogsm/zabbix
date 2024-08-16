@@ -19,15 +19,15 @@ TIMEOUT=${2:-60}
 ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 
 # Filter hosts by Zabbix Proxy and prepare file
-while IFS=";" read -r concat cust hub hostname status addr OS mrdmon proxyaddr proxyname; do
-        echo "$cust;$addr;$proxyname"
+while IFS=";" read -r concat cust hub host Ok addr os b c proxyname e status g h i j k l obs n o gestao; do
+        echo "$cust;$addr;$proxyname;$host;$status;$gestao;$obs"
 done <<<  $(grep -i $(hostname) /home/mgmoreno/Controle) >  /home/mgmoreno/$(hostname)
 
 # Print header
 echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;Cust;Hostname;Status;OS;GestaoTen;OBS"
 
 # Loop through each address in the input file
-while IFS=";" read -r cust addr proxy; do
+while IFS=";" read -r cust addr proxy host status gestao obs; do
     # Initialize ISSUE flag
     ISSUE="No"
 
@@ -37,7 +37,7 @@ while IFS=";" read -r cust addr proxy; do
     # ICMP check
     ICMP=$(ping -W 0.5 -c2 "$addr" | grep -Eo '[0-9]{1,3}% \w+ \w+')
     if [[ $ICMP =~ "100" ]]; then
-        TRACE=$(tracepath -m5 "$addr" | grep -B1 'no reply' | grep -B1 -m1 'no reply' | awk 'NR==1 {print $2}')
+        TRACE=$(tracepath -m5 "$addr" | grep -B1 -m1 'no reply' | awk 'NR==1 {print $2}')
         TRACE=${TRACE:-"unknown"}
         TRACE="Tracert stopped at hop $TRACE"
         ISSUE="Yes"
@@ -70,7 +70,8 @@ while IFS=";" read -r cust addr proxy; do
     # Zabbix proxy log check
 
     IP=$(echo "$addr" | sed 's/\./\\./g')
-    LOG=$( grep date '+%Y%m%d' $ZBXLOG | grep -m1 -w "$IP" $ZBXLOG)
+    date=($date '+%Y%m%d')
+    LOG=$( grep $date $ZBXLOG | grep -m1 -w "$IP" $ZBXLOG)
     if [[ $? -eq 0 ]]; then
         LOG_STATUS="Found ERROR Zabbix Proxy LOG - $LOG"
     else

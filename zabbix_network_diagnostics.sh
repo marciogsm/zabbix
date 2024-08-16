@@ -18,16 +18,19 @@ TIMEOUT=${2:-60}
 # Set Zabbix Proxy logs path
 ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 
+# Set hostname
+HOST=$(hostname)
+
 # Filter hosts by Zabbix Proxy and prepare file
-while IFS=";" read -r concat cust hub host Ok addr os b c proxyname e status g h i j k l obs n o gestao; do
-        echo "$cust;$addr;$proxyname;$host;$status;$os;$gestao;$obs"
+while IFS=";" read -r concat cust hub host Ok addr a b c proxy e f g h i j k; do
+        echo "$cust;$addr;$proxy;$host"
 done <<<  $(grep -i $(hostname) /home/mgmoreno/Controle) >  /home/mgmoreno/$(hostname)
 
 # Print header
-echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;Cust;Hostname;Status;OS;GestaoTen;OBS"
+echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;Cust;Host"
 
 # Loop through each address in the input file
-while IFS=";" read -r cust addr proxy host status os gestao obs; do
+while IFS=";" read -r cust addr proxy host; do
     # Initialize ISSUE flag
     ISSUE="No"
 
@@ -70,8 +73,7 @@ while IFS=";" read -r cust addr proxy host status os gestao obs; do
     # Zabbix proxy log check
 
     IP=$(echo "$addr" | sed 's/\./\\./g')
-    date=($date '+%Y%m%d')
-    LOG=$( grep $date $ZBXLOG | grep -m1 -w "$IP" $ZBXLOG)
+    LOG=$( grep date '+%Y%m%d' $ZBXLOG | grep -m1 -w "$IP" $ZBXLOG)
     if [[ $? -eq 0 ]]; then
         LOG_STATUS="Found ERROR Zabbix Proxy LOG - $LOG"
     else
@@ -79,6 +81,6 @@ while IFS=";" read -r cust addr proxy host status os gestao obs; do
     fi
 
     # Output results for the current address
-    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$hostname;$status;$os;$gestao;$OBS"
+    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$HOST"
 
 done < "/home/mgmoreno/$(hostname)"

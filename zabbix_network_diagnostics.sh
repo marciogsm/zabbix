@@ -18,12 +18,9 @@ TIMEOUT=${2:-60}
 # Set Zabbix Proxy logs path
 ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 
-# Set hostname
-HOST=$(hostname)
-
 # Filter hosts by Zabbix Proxy and prepare file
-while IFS=";" read -r concat cust hub hostname status addr OS mrdmon proxyaddr proxyname iniciado statusinstalacao ten comparaconsole comparaname data a b OBS c d gestao; do
-        echo "$cust;$addr;$proxyname;$hub;$hostname;$status;$OS;$mrdmon;$proxyaddr;$iniciado;$statusinstalacao;$statusten;$comparaconsole;$comparaname;$data;$OBS;$gestao"
+while IFS=";" read -r concat cust hub hostname status addr OS mrdmon proxyaddr proxyname; do
+        echo "$cust;$addr;$proxyname"
 done <<<  $(grep -i $(hostname) /home/mgmoreno/Controle) >  /home/mgmoreno/$(hostname)
 
 # Print header

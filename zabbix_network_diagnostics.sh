@@ -22,7 +22,7 @@ ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 HOST=$(hostname)
 
 # Filter hosts by Zabbix Proxy and prepare file
-while IFS=";" read -r concat cust hub hostname status addr OS mrdmon proxyaddr proxyname iniciado statusinstalacao ten comparaconsole comparaname data 1 2 OBS 4 5 gestao; do
+while IFS=";" read -r concat cust hub hostname status addr OS mrdmon proxyaddr proxyname iniciado statusinstalacao ten comparaconsole comparaname data a b OBS c d gestao; do
         echo "$cust;$addr;$proxyname;$hub;$hostname;$status;$OS;$mrdmon;$proxyaddr;$iniciado;$statusinstalacao;$statusten;$comparaconsole;$comparaname;$data;$OBS;$gestao"
 done <<<  $(grep -i $(hostname) /home/mgmoreno/Controle) >  /home/mgmoreno/$(hostname)
 

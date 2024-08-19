@@ -34,7 +34,7 @@ while IFS=";" read -r cust addr proxy host os status obs; do
     # Initialize ISSUE flag
     ISSUE="No"
 while IFS=";" read -r addrworked proxyworked; do
-if $(grep $addrworked /home/mgmoreno/PreviouslyWorked) && [[ "$proxy" = "$proxyworked" ]]; then
+if [[ "$addrworked$proxyworked" = "$addr$proxy" ]]; then
         echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;PreviouslyWorked;$GAMA;$proxy;$cust;$host;$os;$status;$obs"
         continue
 else

@@ -87,5 +87,5 @@ else
     # Output results for the current address
     echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$host;$os;$status;$obs"
 fi
-done < "/home/mgmoreno/PreviouslyWorked"
+done < <(cat /home/mgmoreno/PreviouslyWorked)
 done < "/home/mgmoreno/$(hostname)"

@@ -33,7 +33,9 @@ echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on
 while IFS=";" read -r cust addr proxy host os status obs; do
     # Initialize ISSUE flag
     ISSUE="No"
-
+if [ $(grep $addr /home/mgmoreno/PreviouslyWorked) ]; then
+        echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;PreviouslyWorked;$GAMA;$proxy;$cust;$host;$os;$status;$obs"
+else
     # Isolate network
     GAMA=$( echo $addr | sed -e 's/\.[0-9]\+$/\.0\/24/g')
 
@@ -82,5 +84,5 @@ while IFS=";" read -r cust addr proxy host os status obs; do
 
     # Output results for the current address
     echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$host;$os;$status;$obs"
-
+fi
 done < "/home/mgmoreno/$(hostname)"

@@ -55,6 +55,9 @@ while IFS=";" read -r cust addr proxy host os status obs; do
     # Zabbix agent check
     ZBX_OUT=$(zabbix_get -t 1 -s "$addr" -k agent.hostname 2>/dev/null)
     ZBX_ERROR_CODE="$?"
+    if [[ $ZBX_ERROR_CODE = "1" ]]; then
+            ISSUE="Yes"
+    fi
 
     # Tcpdump check
     TCPDUMP=$(sudo timeout ${TIMEOUT} tcpdump -c1 -nnn -vvv -i any host "$addr" and port 10051 2>&1)

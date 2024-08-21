@@ -27,7 +27,7 @@ while IFS=";" read -r concat cust hub host ok addr os mrdmon c proxy e status g 
 done <<<  $(grep -i $(hostname) /home/mgmoreno/Controle) >  /home/mgmoreno/$(hostname)
 
 # Print header
-echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;Cust;Host;OS;Status;OBS"
+echo -e "ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;Cust;Host;OS;Status;OBS;ZBXGetSpentTime"
 
 # Loop through each address in the input file
 while IFS=";" read -r cust addr proxy host os status obs; do
@@ -53,11 +53,11 @@ while IFS=";" read -r cust addr proxy host os status obs; do
     fi
 
     # Zabbix agent check
-    ZBX_OUT=$(zabbix_get -t 1 -s "$addr" -k agent.hostname 2>/dev/null)
+    start_time=$(date +%s)
+    ZBX_OUT=$(zabbix_get -s "$addr" -k agent.hostname 2>&1)
     ZBX_ERROR_CODE="$?"
-    if [[ $ZBX_ERROR_CODE = "1" ]]; then
-            ISSUE="Yes"
-    fi
+    end_time=$(date +%s)
+    ZBXGET_spent_time=$((end_time - start_time))
 
     # Tcpdump check
     TCPDUMP=$(sudo timeout ${TIMEOUT} tcpdump -c1 -nnn -vvv -i any host "$addr" and port 10051 2>&1)
@@ -88,7 +88,7 @@ while IFS=";" read -r cust addr proxy host os status obs; do
     fi
 
     # Output results for the current address
-    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$host;$os;$status;$obs"
+    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$host;$os;$status;$obs;$ZBXGET_spent_time"
 #fi
 #done < <(cat /home/mgmoreno/PreviouslyWorked)
 done < "/home/mgmoreno/$(hostname)"

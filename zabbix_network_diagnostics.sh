@@ -88,7 +88,7 @@ while IFS=";" read -r cust addr proxy host os status obs; do
     fi
 
     # Output results for the current address
-    echo -e "$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$host;$os;$status;$obs;$ZBXGET_spent_time"
+    echo -e "$addr;$ZBX_ERROR_CODE;"$ZBX_OUT";$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$cust;$host;$os;$status;$obs;$ZBXGET_spent_time"
 #fi
 #done < <(cat /home/mgmoreno/PreviouslyWorked)
 done < "/home/mgmoreno/$(hostname)"

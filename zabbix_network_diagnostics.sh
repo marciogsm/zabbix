@@ -7,10 +7,17 @@
 # Created by: Marcio Moreno
 # Creation Date: 2023-07-29
 
+SCRIPT_DIR="/home/mgmoreno/"
+LOG_DIR="${SCRIPT_DIR}logs/"
+
 # Check if the input file is provided
-if [[ -z $1 ]]; then
+if [[ $# -gt 1 ]]; then
     echo "Usage: $0 <file> [timeout]"
     exit 1
+fi
+
+if [[ ! -d ${LOG_DIR} ]]; then
+        mkdir -p ${LOG_DIR}
 fi
 
 # Set Zabbix Proxy logs path
@@ -20,9 +27,9 @@ ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 HOST=$(hostname)
 
 # Filter hosts by Zabbix Proxy and prepare file
-grep -i "$(hostname)" /home/mgmoreno/Controle | while IFS=";" read -r concat cust hub host ok addr os mrdmon addrproxy proxy e status g h i j k l obs gestao; do
+grep -i "${HOST}" ${SCRIPT_DIR}Controle | while IFS=";" read -r concat cust hub host ok addr os mrdmon addrproxy proxy e status g h i j k l obs gestao; do
     echo "$cust;$addr;$proxy;$host;$os;$status;$obs;$gestao;$addrproxy"
-done > /home/mgmoreno/$(hostname)
+done > "${SCRIPT_DIR}${HOST}"
 
 # Print header
 echo -e "Host;ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;ZBXProxyAddr;Cust;OS;Status;OBS;Gestao"
@@ -45,7 +52,13 @@ while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do
     else
         TRACE="Tracert ok"
     fi
-    
+if grep -i -w "$cust$host" ${SCRIPT_DIR}previous; then
+TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
+NMAP_STATUS="open Port 10050 on customer host"
+ISSUE="No"
+WORKED="PreviouslyWorked"
+
+else
 # Set timeout value, default is 60 seconds
 TIMEOUT=${2:-60}
 
@@ -72,6 +85,9 @@ TIMEOUT=${2:-60}
         NMAP_STATUS="$NMAP Port 10050 on customer host"
         timeout="10"
     fi
+fi
+
+[[ $timeout == "" ]] && timeout="5"
 
     # Zabbix agent check
     ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname 2>&1 | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
@@ -90,6 +106,6 @@ TIMEOUT=${2:-60}
     fi
 
     # Output results for the current address
-    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao"
+    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$WORKED" | tee -a ${SCRIPT_DIR}${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
 
-done < "/home/mgmoreno/$(hostname)"
+done < "${SCRIPT_DIR}${HOST}"

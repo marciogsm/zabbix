@@ -11,7 +11,7 @@ SCRIPT_DIR="/home/mgmoreno/"
 LOG_DIR="${SCRIPT_DIR}logs/"
 
 # Check if the input file is provided
-if [[ $# -gt 1 ]]; then
+if [[ $# -ge 2 ]]; then
     echo "Usage: $0 <file> [timeout]"
     exit 1
 fi

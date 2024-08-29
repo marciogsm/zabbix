@@ -60,6 +60,7 @@ while IFS=";" read -r cust addr proxy host os status obs; do
     fi
 
     # Tcpdump check
+if [[ $status != "Instalado" ]]; then
     TCPDUMP=$(sudo timeout ${TIMEOUT} tcpdump -c1 -nnn -vvv -i any host "$addr" and port 10051 2>&1)
     if echo "$TCPDUMP" | grep -q "$addr"; then
         TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
@@ -67,7 +68,7 @@ while IFS=";" read -r cust addr proxy host os status obs; do
         TCPDUMP_STATUS="Zabbix Proxy no packets received on port 10051"
         ISSUE="Yes"
     fi
-
+fi
     # Nmap port check
     NMAP=$(sudo nmap -Pn "$addr" -p10050 | awk '/tcp/ {print $2}')
     if [[ $NMAP =~ "closed" || $NMAP =~ "filtered" || -z $NMAP ]]; then

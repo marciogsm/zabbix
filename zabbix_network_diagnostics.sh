@@ -82,8 +82,13 @@ TIMEOUT=${2:-60}
         NMAP_STATUS="$NMAP Port 10050 on customer host"
         ISSUE="Yes"
         timeout="1"
+    if grep -w -i $host ~/10060; then
+NMAP_STATUS="open Port 10050 on customer host"
+ISSUE="No"
+else
+fi
     else
-        NMAP_STATUS="$NMAP Port 10050 on customer host"
+        NMAP_STATUS="open Port 10050 on customer host"
         timeout="10"
     fi
 fi

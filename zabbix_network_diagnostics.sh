@@ -7,8 +7,8 @@
 # Created by: Marcio Moreno
 # Creation Date: 2023-07-29
 
-SCRIPT_DIR="/home/mgmoreno/"
-LOG_DIR="${SCRIPT_DIR}logs/"
+SCRIPT_DIR="/home/mgmoreno"
+LOG_DIR="${SCRIPT_DIR}/logs/"
 
 # Check if the input file is provided
 if [[ $# -ge 2 ]]; then
@@ -27,9 +27,9 @@ ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 HOST=$(hostname)
 
 # Filter hosts by Zabbix Proxy and prepare file
-grep -i "${HOST}" ${SCRIPT_DIR}Controle | while IFS=";" read -r concat cust hub host ok addr os mrdmon addrproxy proxy e status g h i j k l obs gestao; do
+grep -i "${HOST}" ${SCRIPT_DIR}/Controle | while IFS=";" read -r concat cust hub host ok addr os mrdmon addrproxy proxy e status g h i j k l obs gestao; do
     echo "$cust;$addr;$proxy;$host;$os;$status;$obs;$gestao;$addrproxy"
-done > "${SCRIPT_DIR}${HOST}"
+done > "${SCRIPT_DIR}/${HOST}"
 
 # Print header
 echo -e "Host;ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;ZBXProxyAddr;Cust;OS;Status;OBS;Gestao;PreviousRun"
@@ -52,7 +52,7 @@ while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do
     else
         TRACE="Tracert ok"
     fi
-if grep -i -w "$cust$host" ${SCRIPT_DIR}previous; then
+if grep -i -w "$cust$host" ${SCRIPT_DIR}/previous; then
 TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
 NMAP_STATUS="open Port 10050 on customer host"
 ISSUE="No"
@@ -82,7 +82,7 @@ TIMEOUT=${2:-60}
         NMAP_STATUS="$NMAP Port 10050 on customer host"
         ISSUE="Yes"
         timeout="1"
-    if grep -w -i $host ~/10060; then
+    if grep -w -i $host "${SCRIPT_DIR}/10060"; then
 NMAP_STATUS="open Port 10050 on customer host"
 ISSUE="No"
 fi
@@ -111,6 +111,6 @@ fi
     fi
 
     # Output results for the current address
-    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$PREVIOUS" | tee -a ${SCRIPT_DIR}${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
+    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$PREVIOUS" | tee -a ${SCRIPT_DIR}/${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
 
-done < "${SCRIPT_DIR}${HOST}"
+done < "${SCRIPT_DIR}/${HOST}"

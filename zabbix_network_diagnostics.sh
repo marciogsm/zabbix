@@ -56,9 +56,10 @@ if grep -i -w "$cust$host" ${SCRIPT_DIR}previous; then
 TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
 NMAP_STATUS="open Port 10050 on customer host"
 ISSUE="No"
-WORKED="PreviouslyWorked"
+PREVIOUS="PreviouslyWorked"
 
 else
+PREVIOUS="TryItAgain"
 # Set timeout value, default is 60 seconds
 TIMEOUT=${2:-60}
 
@@ -106,6 +107,6 @@ fi
     fi
 
     # Output results for the current address
-    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$WORKED" | tee -a ${SCRIPT_DIR}${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
+    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$PREVIOUS" | tee -a ${SCRIPT_DIR}${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
 
 done < "${SCRIPT_DIR}${HOST}"

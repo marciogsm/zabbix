@@ -32,7 +32,7 @@ grep -i "${HOST}" ${SCRIPT_DIR}Controle | while IFS=";" read -r concat cust hub 
 done > "${SCRIPT_DIR}${HOST}"
 
 # Print header
-echo -e "Host;ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;ZBXProxyAddr;Cust;OS;Status;OBS;Gestao"
+echo -e "Host;ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;ZBXProxyAddr;Cust;OS;Status;OBS;Gestao;PreviousRun"
 
 # Loop through each address in the input file
 while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do

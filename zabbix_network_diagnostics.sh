@@ -83,23 +83,28 @@ TIMEOUT=${2:-60}
         ISSUE="Yes"
         timeout="1"
     if grep -w -i $host "${SCRIPT_DIR}/10060"; then
-NMAP_STATUS="open Port 10050 on customer host"
-ISSUE="No"
-fi
+        NMAP_STATUS="open Port 10050 on customer host"
+        ZBX_GET="Overwrite"
+        ISSUE="No"
+    fi
     else
         NMAP_STATUS="open Port 10050 on customer host"
         timeout="10"
     fi
 fi
 
+
 [[ $timeout == "" ]] && timeout="5"
 
-    # Zabbix agent check
+# Zabbix agent check ignore hosts with agent installed on port 10060
+if [[ $ZBX_GET == "Overwrite" ]]; then
+    ZBX_OUT="A escutar na porta 10060"
+else
     ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname 2>&1 | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
-    ZBX_ERROR_CODE="$?"
-    if [[ $ZBX_ERROR_CODE = "1" ]]; then
+    if [[ $? = "1" ]]; then
         ISSUE="Yes"
     fi
+fi
 
     # Zabbix proxy log check
     IP=$(echo "$addr" | sed 's/\./\\./g')
@@ -111,6 +116,6 @@ fi
     fi
 
     # Output results for the current address
-    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$PREVIOUS" | tee -a ${SCRIPT_DIR}/${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
+    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao" | tee -a ${SCRIPT_DIR}/${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
 
 done < "${SCRIPT_DIR}/${HOST}"

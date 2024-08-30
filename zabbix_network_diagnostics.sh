@@ -52,7 +52,7 @@ while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do
     else
         TRACE="Tracert ok"
     fi
-if grep -i -w "$cust$host" ${SCRIPT_DIR}/previous; then
+if grep -q -i -w "$cust$host" ${SCRIPT_DIR}/previous; then
 TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
 NMAP_STATUS="open Port 10050 on customer host"
 ISSUE="No"
@@ -82,7 +82,7 @@ TIMEOUT=${2:-60}
         NMAP_STATUS="$NMAP Port 10050 on customer host"
         ISSUE="Yes"
         timeout="1"
-    if grep -w -i $host "${SCRIPT_DIR}/10060"; then
+    if grep -q -w -i $host "${SCRIPT_DIR}/10060"; then
         NMAP_STATUS="open Port 10050 on customer host"
         ZBX_GET="Overwrite"
         ISSUE="No"
@@ -100,7 +100,7 @@ fi
 if [[ $ZBX_GET == "Overwrite" ]]; then
     ZBX_OUT="A escutar na porta 10060"
 else
-    ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname 2>&1 | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
+    ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname &>1 | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
     if [[ $? = "1" ]]; then
         ISSUE="Yes"
     fi

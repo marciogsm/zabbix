@@ -116,6 +116,6 @@ fi
     fi
 
     # Output results for the current address
-    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao" | tee -a ${SCRIPT_DIR}/${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
+    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$PREVIOUS" | tee -a ${SCRIPT_DIR}/${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
 
 done < "${SCRIPT_DIR}/${HOST}"

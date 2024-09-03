@@ -100,11 +100,13 @@ fi
 if [[ $ZBX_GET == "Overwrite" ]]; then
     ZBX_OUT="A escutar na porta 10060"
 else
-    ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname &>1 | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
-    if [[ $? = "1" ]]; then
+    ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname 2>&1 | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
+    ZBX_ERROR_CODE="$?"
+    if [[ $ZBX_ERROR_CODE = "1" ]]; then
         ISSUE="Yes"
     fi
 fi
+
 
     # Zabbix proxy log check
     IP=$(echo "$addr" | sed 's/\./\\./g')

@@ -38,6 +38,8 @@ echo -e "Host;ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connectio
 while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do
     # Initialize ISSUE flag
     ISSUE="No"
+    # Initialize ZBX_GET flag responsible for checking if agent was installed under port 10060
+    ZBX_GET=""
 
     # Isolate network
     GAMA=$(echo "$addr" | sed -e 's/\.[0-9]\+$/\.0\/24/g')
@@ -75,8 +77,7 @@ TIMEOUT=${2:-60}
     else
         TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
     fi
-    # Reset variable responsible for identify if agent was installed under port 10060
-ZBX_GET=""
+
     # Nmap port check
     NMAP=$(sudo nmap -Pn "$addr" -p10050 | awk '/tcp/ {print $2}')
     if [[ $NMAP =~ "closed" || $NMAP =~ "filtered" || -z $NMAP ]]; then

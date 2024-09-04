@@ -6,7 +6,7 @@
 #        [timeout] - (Optional) Timeout value for tcpdump. Default is 60 seconds.
 # Created by: Marcio Moreno
 # Creation Date: 2023-07-29
-#set -x
+#set -v
 
 SCRIPT_DIR="/home/mgmoreno"
 LOG_DIR="${SCRIPT_DIR}/logs/"
@@ -52,6 +52,9 @@ while IFS=";" read -r cust host addr proxy addrproxy os status obs gestao; do
 
     # Initialize ISSUE flag
     ISSUE="No"
+    ICMP_OUT="0"
+    NMAP_OUT="0"
+    TCPDUMP_OUT="0"
 
     # Initialize ZBX_GET and ZBX_OUT flags
     ZBX_GET="RESET"
@@ -68,8 +71,9 @@ while IFS=";" read -r cust host addr proxy addrproxy os status obs gestao; do
         #TRACE=$(tracepath -m5 "$addr" | grep -B1 -m1 'no reply' | awk 'NR==1 {print $2}')
         #TRACE=${TRACE:-"unknown"}
         #TRACE="Tracert stopped at hop $TRACE"
-        TRACE="Foi igorado o Tracert para esta execucao da script" 
+        TRACE="Foi igorado o Tracert para esta execucao da script"
         ISSUE="Yes"
+        ICMP_OUT="1"
     else
         TRACE="Tracert ok"
     fi
@@ -82,7 +86,7 @@ PREVIOUS="PreviouslyWorked"
 else
 PREVIOUS="TryItAgain"
 # Set timeout value, default is 60 seconds
-TIMEOUT=${2:-30}
+TIMEOUT=${2:-60}
 
     # Tcpdump check if status is not equal to "Instalado"
     if [[ "$status" != "Instalado" ]]; then
@@ -91,6 +95,7 @@ TIMEOUT=${2:-30}
             TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
         else
             TCPDUMP_STATUS="Zabbix Proxy no packets received on port 10051"
+            TCPDUMP_OUT="1"
             ISSUE="Yes"
         fi
     else
@@ -103,6 +108,7 @@ TIMEOUT=${2:-30}
         NMAP_STATUS="$NMAP Port 10050 on customer host"
         ISSUE="Yes"
         timeout="1"
+        NMAP_OUT="1"
     elif [[ ! $NMAP =~ "check any value to ensure is not listening on port 10060" ]]; then
     if grep -q -w -i $host "${SCRIPT_DIR}/10060"; then
         NMAP_STATUS="open Port 10050 on customer host"
@@ -122,7 +128,7 @@ fi
 if [[ $ZBX_GET == "Overwrite" ]]; then
     ZBX_OUT="A escutar na porta 10060"
 else
-        ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname 2>&1)
+    ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname 2>&1)
     # | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
     ZBX_ERROR_CODE="$?"
 
@@ -136,7 +142,7 @@ fi
 #    if [[ $ZBX_ERROR_CODE = "1" ]]; then
 #        ISSUE="Yes"
 #    fi
-#fi
+fi
 
 
     # Zabbix proxy log check
@@ -148,8 +154,15 @@ fi
         LOG_STATUS="No errors found in Zabbix Proxy LOG"
     fi
 
+if [[ "$ICMP_OUT" == "1" && "$NMAP_OUT" == "0" && "$TCPDUMP_OUT" == "0" ]]; then
+    ISSUE="FaileOnlyICMP"
+elif [[ "$ICMP_OUT" == "0" && "$NMAP_OUT" == "1" || "$TCPDUMP_OUT" == "1" ]]; then
+    ISSUE="Yes"
+fi
+
+
+
     # Output results for the current address
     echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$PREVIOUS"
-    # | tee -a ${SCRIPT_DIR}/${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
 
 done < "${SCRIPT_DIR}/${HOST}"

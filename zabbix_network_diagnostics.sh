@@ -75,7 +75,8 @@ TIMEOUT=${2:-60}
     else
         TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
     fi
-
+    # Reset variable responsible for identify if agent was installed under port 10060
+ZBX_GET=""
     # Nmap port check
     NMAP=$(sudo nmap -Pn "$addr" -p10050 | awk '/tcp/ {print $2}')
     if [[ $NMAP =~ "closed" || $NMAP =~ "filtered" || -z $NMAP ]]; then

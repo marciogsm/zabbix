@@ -82,7 +82,7 @@ PREVIOUS="PreviouslyWorked"
 else
 PREVIOUS="TryItAgain"
 # Set timeout value, default is 60 seconds
-TIMEOUT=${2:-60}
+TIMEOUT=${2:-30}
 
     # Tcpdump check if status is not equal to "Instalado"
     if [[ "$status" != "Instalado" ]]; then
@@ -111,7 +111,7 @@ TIMEOUT=${2:-60}
     fi
     else
         NMAP_STATUS="open Port 10050 on customer host"
-        timeout="10"
+        timeout="5"
     fi
 fi
 

@@ -6,6 +6,7 @@
 #        [timeout] - (Optional) Timeout value for tcpdump. Default is 60 seconds.
 # Created by: Marcio Moreno
 # Creation Date: 2023-07-29
+#set -x
 
 SCRIPT_DIR="/home/mgmoreno"
 LOG_DIR="${SCRIPT_DIR}/logs/"
@@ -27,7 +28,7 @@ ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 HOST=$(hostname)
 
 # Filter hosts by Zabbix Proxy and prepare file
-grep -wi "${HOST}" ${SCRIPT_DIR}/Controle > "${SCRIPT_DIR}/${HOST}"
+grep -w -i "${HOST}" "${SCRIPT_DIR}/Controle" > "${SCRIPT_DIR}/${HOST}"
 
 # | while IFS=";" read -r concat cust hub host ok addr os mrdmon addrproxy proxy e status g h i j k l obs gestao; do
 #    echo "$cust;$addr;$proxy;$host;$os;$status;$obs;$gestao;$addrproxy"
@@ -37,7 +38,7 @@ grep -wi "${HOST}" ${SCRIPT_DIR}/Controle > "${SCRIPT_DIR}/${HOST}"
 echo -e "Host;ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;ZBXProxyAddr;Cust;OS;Status;OBS;Gestao;PreviousRun"
 
 # Loop through each address in the input file
-while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do
+while IFS=";" read -r cust host addr proxy addrproxy os status obs gestao; do
 # Check if the variables are empty and set them to "NA" if they are
 [ -z "$cust" ] && cust="NA"
 [ -z "$addr" ] && addr="NA"
@@ -51,11 +52,13 @@ while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do
 
     # Initialize ISSUE flag
     ISSUE="No"
-    
+
     # Initialize ZBX_GET and ZBX_OUT flags
     ZBX_GET="RESET"
     ZBX_OUT="RESET"
-    
+    ZBX_ERROR_CODE="RESET"
+
+
     # Isolate network
     GAMA=$(echo "$addr" | sed -e 's/\.[0-9]\+$/\.0\/24/g')
 
@@ -99,6 +102,7 @@ TIMEOUT=${2:-60}
         NMAP_STATUS="$NMAP Port 10050 on customer host"
         ISSUE="Yes"
         timeout="1"
+    elif [[ ! $NMAP =~ "check any value to ensure is not listening on port 10060" ]]; then
     if grep -q -w -i $host "${SCRIPT_DIR}/10060"; then
         NMAP_STATUS="open Port 10050 on customer host"
         ZBX_GET="Overwrite"
@@ -117,8 +121,17 @@ fi
 if [[ $ZBX_GET == "Overwrite" ]]; then
     ZBX_OUT="A escutar na porta 10060"
 else
-    ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname 2>&1 | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
+        ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname 2>&1)
+    # | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
     ZBX_ERROR_CODE="$?"
+
+    if [[ "${ZBXOUT,,}" =~ timeout|error|access|restrictions ]]; then
+  ZBX_OUT=$(echo $ZBX_OUT | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
+else
+        ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname)
+fi
+
+
     if [[ $ZBX_ERROR_CODE = "1" ]]; then
         ISSUE="Yes"
     fi
@@ -135,7 +148,7 @@ fi
     fi
 
     # Output results for the current address
-    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$PREVIOUS" 
+    echo -e "$host;$addr;$ZBX_ERROR_CODE;$ZBX_OUT;$ICMP;$TRACE;$TCPDUMP_STATUS;$NMAP_STATUS;$LOG_STATUS;$ISSUE;$GAMA;$proxy;$addrproxy;$cust;$os;$status;$obs;$gestao;$PREVIOUS"
     # | tee -a ${SCRIPT_DIR}/${HOST}_CheckAllDev_$(date '+%Y%m%d').csv
 
 done < "${SCRIPT_DIR}/${HOST}"

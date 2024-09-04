@@ -125,8 +125,8 @@ else
     # | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
     ZBX_ERROR_CODE="$?"
 
-    if [[ "${ZBXOUT,,}" =~ timeout|error|access|restrictions ]]; then
-  ZBX_OUT=$(echo $ZBX_OUT | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
+    if [[ "${ZBX_OUT,,}" =~ timeout|error|access|restrictions ]]; then
+  ZBX_OUT=$(echo "$ZBX_OUT" | awk -F': ' 'NR==1 {output=$2} NR>1 {output=output"|" $2} END {print output}')
 else
         ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname)
 fi

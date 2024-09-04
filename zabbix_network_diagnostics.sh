@@ -27,15 +27,28 @@ ZBXLOG="/var/log/zabbix/zabbix_proxy.log"
 HOST=$(hostname)
 
 # Filter hosts by Zabbix Proxy and prepare file
-grep -i "${HOST}" ${SCRIPT_DIR}/Controle | while IFS=";" read -r concat cust hub host ok addr os mrdmon addrproxy proxy e status g h i j k l obs gestao; do
-    echo "$cust;$addr;$proxy;$host;$os;$status;$obs;$gestao;$addrproxy"
-done > "${SCRIPT_DIR}/${HOST}"
+grep -wi "${HOST}" ${SCRIPT_DIR}/Controle > "${SCRIPT_DIR}/${HOST}"
+
+# | while IFS=";" read -r concat cust hub host ok addr os mrdmon addrproxy proxy e status g h i j k l obs gestao; do
+#    echo "$cust;$addr;$proxy;$host;$os;$status;$obs;$gestao;$addrproxy"
+# done > "${SCRIPT_DIR}/${HOST}"
 
 # Print header
 echo -e "Host;ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connections on port 10051?;Host listening on port 10050?;ZBXProxy logs contain errors?;Issue;Gama;ZBXProxy;ZBXProxyAddr;Cust;OS;Status;OBS;Gestao;PreviousRun"
 
 # Loop through each address in the input file
 while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do
+# Check if the variables are empty and set them to "NA" if they are
+[ -z "$cust" ] && cust="NA"
+[ -z "$addr" ] && addr="NA"
+[ -z "$proxy" ] && proxy="NA"
+[ -z "$host" ] && host="NA"
+[ -z "$os" ] && os="NA"
+[ -z "$status" ] && status="NA"
+[ -z "$obs" ] && obs="NA"
+[ -z "$gestao" ] && gestao="NA"
+[ -z "$addrproxy" ] && addrproxy="NA"
+
     # Initialize ISSUE flag
     ISSUE="No"
     

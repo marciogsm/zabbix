@@ -133,10 +133,10 @@ else
 fi
 
 
-    if [[ $ZBX_ERROR_CODE = "1" ]]; then
-        ISSUE="Yes"
-    fi
-fi
+#    if [[ $ZBX_ERROR_CODE = "1" ]]; then
+#        ISSUE="Yes"
+#    fi
+#fi
 
 
     # Zabbix proxy log check

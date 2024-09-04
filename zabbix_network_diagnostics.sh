@@ -38,9 +38,11 @@ echo -e "Host;ADDR;ZBX_ERROR_CODE;ZBX_OUT;ICMP;Trace;ZBXProxy received connectio
 while IFS=";" read -r cust addr proxy host os status obs gestao addrproxy; do
     # Initialize ISSUE flag
     ISSUE="No"
-    # Initialize ZBX_GET flag responsible for checking if agent was installed under port 10060
-    ZBX_GET=""
-
+    
+    # Initialize ZBX_GET and ZBX_OUT flags
+    ZBX_GET="RESET"
+    ZBX_OUT="RESET"
+    
     # Isolate network
     GAMA=$(echo "$addr" | sed -e 's/\.[0-9]\+$/\.0\/24/g')
 

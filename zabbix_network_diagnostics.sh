@@ -65,9 +65,10 @@ while IFS=";" read -r cust host addr proxy addrproxy os status obs gestao; do
     # ICMP check
     ICMP=$(ping -W 0.5 -c2 "$addr" | grep -Eo '[0-9]{1,3}% \w+ \w+')
     if [[ $ICMP =~ "100" ]]; then
-        TRACE=$(tracepath -m5 "$addr" | grep -B1 -m1 'no reply' | awk 'NR==1 {print $2}')
-        TRACE=${TRACE:-"unknown"}
-        TRACE="Tracert stopped at hop $TRACE"
+        #TRACE=$(tracepath -m5 "$addr" | grep -B1 -m1 'no reply' | awk 'NR==1 {print $2}')
+        #TRACE=${TRACE:-"unknown"}
+        #TRACE="Tracert stopped at hop $TRACE"
+        TRACE="Foi igorado o Tracert para esta execucao da script" 
         ISSUE="Yes"
     else
         TRACE="Tracert ok"

@@ -160,6 +160,8 @@ elif [[ "$ICMP_OUT" == "0" && "$NMAP_OUT" == "1" && "$TCPDUMP_OUT" == "0" ]]; th
     ISSUE="No"
 elif [[ "$ICMP_OUT" == "0" && "$NMAP_OUT" == "0" && "$TCPDUMP_OUT" == "1" ]]; then
     ISSUE="Yes"
+elif [[ "$ICMP_OUT" == "0" && "$NMAP_OUT" == "0" && "$TCPDUMP_OUT" == "0" ]]; then
+    ISSUE="No"
 else
 ISSUE="NoMatch"
 fi

@@ -89,7 +89,9 @@ PREVIOUS="TryItAgain"
 TIMEOUT=${2:-30}
 
     # Tcpdump check if status is not equal to "Instalado"
-    if [[ "$status" != "Instalado" ]]; then
+    if [[ "$status" == "Instalado" ]]; then
+        TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
+    elif [[ "$status" != "Instalado" ]]; then
         TCPDUMP=$(sudo timeout ${TIMEOUT} tcpdump -c1 -nnn -vvv -i any host "$addr" and port 10051 2>&1)
         if echo "$TCPDUMP" | grep -q "$addr"; then
             TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
@@ -98,15 +100,13 @@ TIMEOUT=${2:-30}
             TCPDUMP_OUT="1"
             ISSUE="Yes"
         fi
-    else
-        TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
     fi
 
     # Nmap port check
     NMAP=$(sudo nmap -Pn "$addr" -p10050 | awk '/tcp/ {print $2}')
     if [[ $NMAP =~ "closed" || $NMAP =~ "filtered" || -z $NMAP ]]; then
         NMAP_STATUS="$NMAP Port 10050 on customer host"
-        ISSUE="Yes"
+        # ISSUE="Yes"  By now ignore but in the OS admins will have to realize why it doesnt answer
         timeout="1"
         NMAP_OUT="1"
     elif [[ ! $NMAP =~ "check any value to ensure is not listening on port 10060" ]]; then
@@ -138,6 +138,9 @@ else
         ZBX_OUT=$(zabbix_get -t "$timeout" -s "$addr" -k agent.hostname)
 fi
 
+if [[ "$ICMP_OUT" == "1" && "$NMAP_OUT" == "0" && "$TCPDUMP_OUT" == "0" ]]; then
+    ISSUE="FaileOnlyICMP"
+fi
 
 #    if [[ $ZBX_ERROR_CODE = "1" ]]; then
 #        ISSUE="Yes"
@@ -153,16 +156,6 @@ fi
     else
         LOG_STATUS="No errors found in Zabbix Proxy LOG"
     fi
-
-if [[ "$ICMP_OUT" == "1" && "$NMAP_OUT" == "0" && "$TCPDUMP_OUT" == "0" ]]; then
-    ISSUE="FaileOnlyICMP"
-elif [[ "$NMAP_OUT" == "1" || "$TCPDUMP_OUT" == "1" ]]; then
-    ISSUE="Yes"
-elif [[ "$NMAP_OUT" == "0" && "$TCPDUMP_OUT" == "0" ]]; then
-    ISSUE="No"
-else
-ISSUE="NoMatch"
-fi
 
 
 

@@ -91,6 +91,7 @@ TIMEOUT=${2:-30}
     # Tcpdump check if status is not equal to "Instalado"
     if [[ "$status" == "Instalado" ]]; then
         TCPDUMP_STATUS="Zabbix Proxy received packets on port 10051"
+        ISSUE="No"
     elif [[ "$status" != "Instalado" ]]; then
         TCPDUMP=$(sudo timeout ${TIMEOUT} tcpdump -c1 -nnn -vvv -i any host "$addr" and port 10051 2>&1)
         if echo "$TCPDUMP" | grep -q "$addr"; then

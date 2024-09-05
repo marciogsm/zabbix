@@ -156,8 +156,12 @@ fi
 
 if [[ "$ICMP_OUT" == "1" && "$NMAP_OUT" == "0" && "$TCPDUMP_OUT" == "0" ]]; then
     ISSUE="FaileOnlyICMP"
-elif [[ "$ICMP_OUT" == "0" && "$NMAP_OUT" == "1" || "$TCPDUMP_OUT" == "1" ]]; then
+elif [[ "$ICMP_OUT" == "0" && "$NMAP_OUT" == "1" && "$TCPDUMP_OUT" == "0" ]]; then
+    ISSUE="No"
+elif [[ "$ICMP_OUT" == "0" && "$NMAP_OUT" == "0" && "$TCPDUMP_OUT" == "1" ]]; then
     ISSUE="Yes"
+else
+ISSUE="NoMatch"
 fi
 
 

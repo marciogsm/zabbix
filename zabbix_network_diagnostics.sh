@@ -86,7 +86,7 @@ PREVIOUS="PreviouslyWorked"
 else
 PREVIOUS="TryItAgain"
 # Set timeout value, default is 60 seconds
-TIMEOUT=${2:-30}
+TIMEOUT=${2:-300}
 
     # Tcpdump check if status is not equal to "Instalado"
     if [[ "$status" == "Instalado" ]]; then
